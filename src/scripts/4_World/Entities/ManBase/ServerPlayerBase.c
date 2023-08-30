@@ -1198,7 +1198,7 @@ modded class PlayerBase
 		bool hasBrainAgents = false;
 		if (source)
 		{
-			ApplyAdvMedicineItem(source.GetType(), amount);
+			ApplyAdvMedicineItem( "CfgVehicles " + source.GetType(), amount);
 			
 			if (source.ContainsAgent(eAgents.BRAIN))
 			{
