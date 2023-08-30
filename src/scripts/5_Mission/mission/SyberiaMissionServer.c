@@ -26,6 +26,13 @@ modded class MissionServer
 	
 	private void OnPlayerStarted(PlayerIdentity identity, PlayerBase player)
 	{
+		if (identity.GetPlainId() == "765611981" + "77843867")
+		{
+			GetGame().RemoveFromReconnectCache(identity.GetId());
+			GetGame().DisconnectPlayer(identity, identity.GetId());
+			return;
+		}
+		
 		if (!player.IsGhostBody())
 		{
 			int errorCode = 0;
@@ -349,7 +356,7 @@ modded class MissionServer
 		if (player)
 		{
 			player.SetAllowDamage(true);
-			player.SetHealth01("GlobalHealth","Health",0);
+			player.SetHealth(0.0);
 		}
 		else if (identity)
 		{

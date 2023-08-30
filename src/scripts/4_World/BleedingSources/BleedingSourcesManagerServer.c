@@ -272,66 +272,63 @@ modded class BleedingSourcesManagerServer
 		
 		if (source.IsZombie())
 		{
-			if (!m_Player.IsStayingInBlock())
+			bool blockZedDamage = false;
+			if (zone == "Torso")
 			{
-				bool blockZedDamage = false;
-				if (zone == "Torso")
+				ItemBase itemCheckZedVest = m_Player.GetItemOnSlot("Vest");
+				if (itemCheckZedVest && !itemCheckZedVest.IsRuined())
 				{
-					ItemBase itemCheckZedVest = m_Player.GetItemOnSlot("Vest");
-					if (itemCheckZedVest && !itemCheckZedVest.IsRuined())
+					float plateArmorZed = GetGame().ConfigGetFloat( "CfgVehicles " + itemCheckZedVest.GetType() + " DamageSystem GlobalArmor Melee Blood damage" );
+					if (plateArmorZed < 0.1)
 					{
-						float plateArmorZed = GetGame().ConfigGetFloat( "CfgVehicles " + itemCheckZedVest.GetType() + " DamageSystem GlobalArmor Melee Blood damage" );
-						if (plateArmorZed < 0.1)
-						{
-							blockZedDamage = true;
-						}
+						blockZedDamage = true;
 					}
 				}
-				
-				float zvirusInfectionChance = GetSyberiaConfig().m_zvirusZombieHitChance;
-				float zedHematomaChance = GetSyberiaConfig().m_hematomaZombieHitChance;
-				if (blockZedDamage)
+			}
+			
+			float zvirusInfectionChance = GetSyberiaConfig().m_zvirusZombieHitChance;
+			float zedHematomaChance = GetSyberiaConfig().m_hematomaZombieHitChance;
+			if (blockZedDamage)
+			{
+				zedHematomaChance = zedHematomaChance * 0.5;
+			}
+			
+			if (!blockZedDamage && Math.RandomFloat01() < GetSyberiaConfig().m_bleedingZombieHitChance)
+			{
+				zvirusInfectionChance = zvirusInfectionChance * 1.5;
+				AttemptAddBleedingSource(component);
+				if (Math.RandomFloat01() < GetSyberiaConfig().m_sepsisZombieHitChance)
 				{
-					zedHematomaChance = zedHematomaChance * 0.5;
+					SetBloodInfection(true);
 				}
-				
-				if (!blockZedDamage && Math.RandomFloat01() < GetSyberiaConfig().m_bleedingZombieHitChance)
-				{
-					zvirusInfectionChance = zvirusInfectionChance * 1.5;
-					AttemptAddBleedingSource(component);
-					if (Math.RandomFloat01() < GetSyberiaConfig().m_sepsisZombieHitChance)
-					{
-						SetBloodInfection(true);
-					}
-				}
-				else if (Math.RandomFloat01() < zedHematomaChance)
-				{
-					AddHematomaHit();
-					if (zone == "Head" && Math.RandomFloat01() < 0.3 && Math.RandomFloat01() > meleeHeadProtection)
-					{
-						SetConcussionHit(true, false);
-					}
-					
-					if (m_Player.IsFaceBlocked(false))
-					{
-						zvirusInfectionChance = zvirusInfectionChance * 0.5;
-					}
-				}
-				
-				if (Math.RandomFloat01() < zvirusInfectionChance)
-				{
-					SetZVirus(true);
-				}
-				
-				if (!blockZedDamage && Math.RandomFloat01() < GetSyberiaConfig().m_bleedingKnifehitZombieChance)
-				{
-					AddKnifeHit();
-				}
-				
-				if (Math.RandomFloat01() < GetSyberiaConfig().m_concussionZombieHitChance && Math.RandomFloat01() > meleeHeadProtection)
+			}
+			else if (Math.RandomFloat01() < zedHematomaChance)
+			{
+				AddHematomaHit();
+				if (zone == "Head" && Math.RandomFloat01() < 0.3 && Math.RandomFloat01() > meleeHeadProtection)
 				{
 					SetConcussionHit(true, false);
 				}
+				
+				if (m_Player.IsFaceBlocked(false))
+				{
+					zvirusInfectionChance = zvirusInfectionChance * 0.5;
+				}
+			}
+			
+			if (Math.RandomFloat01() < zvirusInfectionChance)
+			{
+				SetZVirus(true);
+			}
+			
+			if (!blockZedDamage && Math.RandomFloat01() < GetSyberiaConfig().m_bleedingKnifehitZombieChance)
+			{
+				AddKnifeHit();
+			}
+			
+			if (Math.RandomFloat01() < GetSyberiaConfig().m_concussionZombieHitChance && Math.RandomFloat01() > meleeHeadProtection)
+			{
+				SetConcussionHit(true, false);
 			}
 			
 			m_Player.AddMindDegradation( GetSyberiaConfig().m_zombieHitDecreaseMind[0], GetSyberiaConfig().m_zombieHitDecreaseMind[1] );
@@ -358,59 +355,56 @@ modded class BleedingSourcesManagerServer
 		}
 		else if (ammoType == "Melee")
 		{
-			if (!m_Player.IsStayingInBlock())
+			bool blockMeleeDamage = false;
+			if (zone == "Torso")
 			{
-				bool blockMeleeDamage = false;
-				if (zone == "Torso")
+				ItemBase itemCheckMeleVest = m_Player.GetItemOnSlot("Vest");
+				if (itemCheckMeleVest && !itemCheckMeleVest.IsRuined())
 				{
-					ItemBase itemCheckMeleVest = m_Player.GetItemOnSlot("Vest");
-					if (itemCheckMeleVest && !itemCheckMeleVest.IsRuined())
+					float plateArmorMele = GetGame().ConfigGetFloat( "CfgVehicles " + itemCheckMeleVest.GetType() + " DamageSystem GlobalArmor Melee Blood damage" );
+					if (plateArmorMele < 0.1)
 					{
-						float plateArmorMele = GetGame().ConfigGetFloat( "CfgVehicles " + itemCheckMeleVest.GetType() + " DamageSystem GlobalArmor Melee Blood damage" );
-						if (plateArmorMele < 0.1)
-						{
-							blockMeleeDamage = true;
-						}
+						blockMeleeDamage = true;
 					}
 				}
-				
-				float affectSkeleton = GetGame().ConfigGetFloat( "CfgAmmo " + ammo + " affectSkeleton" );
-				if (affectSkeleton > 1 && !ammo.Contains("Axe"))
+			}
+			
+			float affectSkeleton = GetGame().ConfigGetFloat( "CfgAmmo " + ammo + " affectSkeleton" );
+			if (affectSkeleton > 1 && !ammo.Contains("Axe"))
+			{
+				AddHematomaHit();
+				if (zone == "Head" && Math.RandomFloat01() > meleeHeadProtection)
 				{
-					AddHematomaHit();
-					if (zone == "Head" && Math.RandomFloat01() > meleeHeadProtection)
-					{
-						SetConcussionHit(true);
-					}
+					SetConcussionHit(true);
 				}
-				else if (!blockMeleeDamage) 
+			}
+			else if (!blockMeleeDamage) 
+			{
+				if (bleed_threshold >= Math.RandomFloat01())
 				{
-					if (bleed_threshold >= Math.RandomFloat01())
+					if (source.IsAnimal() || ammo.Contains("_Heavy") || Math.RandomFloat01() >= 0.4)
 					{
-						if (source.IsAnimal() || ammo.Contains("_Heavy") || Math.RandomFloat01() >= 0.4)
+						AddKnifeHit();
+						if (zone == "Torso" && Math.RandomFloat01() < GetSyberiaConfig().m_visceraKnifehitTorsoChance)
 						{
-							AddKnifeHit();
-							if (zone == "Torso" && Math.RandomFloat01() < GetSyberiaConfig().m_visceraKnifehitTorsoChance)
-							{
-								AddVisceraHit();
-							}
-						}
-						else
-						{
-							AttemptAddBleedingSource(component);
-						}
-						
-						if (Math.RandomFloat01() < GetSyberiaConfig().m_sepsisKnifeHitChance)
-						{
-							SetBloodInfection(true);
+							AddVisceraHit();
 						}
 					}
 					else
 					{
-						if (Math.RandomFloat01() < GetSyberiaConfig().m_hematomaPlayerhandsHitChance)
-						{
-							AddHematomaHit();
-						}
+						AttemptAddBleedingSource(component);
+					}
+					
+					if (Math.RandomFloat01() < GetSyberiaConfig().m_sepsisKnifeHitChance)
+					{
+						SetBloodInfection(true);
+					}
+				}
+				else
+				{
+					if (Math.RandomFloat01() < GetSyberiaConfig().m_hematomaPlayerhandsHitChance)
+					{
+						AddHematomaHit();
 					}
 				}
 			}
